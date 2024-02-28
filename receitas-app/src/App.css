@@ -1,0 +1,44 @@
+/* CSS DO HEADER */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 10%;
+  background-color: aqua;
+  text-align: center;
+}
+
+/* Index - página principal */
+.index {
+  margin-top: 5%;
+  margin-right: 20%;
+  margin-left: 20%;
+  width: 60%;
+  background-color: lightblue;
+}
+
+/* Informação do Index */
+.informacao {
+  padding: 10px;
+  margin-bottom: 10px;
+  border-bottom: solid 2px black;
+}
+.user-info {
+  display: flex;
+  align-items: center;
+}
+.user-info > img {
+  height: 15%; /* Tamanho da imagem, ajuste conforme necessário */
+  width: 15%; /* Para manter a proporção da imagem */
+  margin-right: 10px; /* Espaçamento entre a imagem e o texto */
+}
+.receita {
+  margin-top: 10px; /* Espaçamento entre o nome do usuário e a receita */
+}
+.ingredientes{
+  padding: 0px;
+}
+.preparacao{
+  padding: 0px;
+}
