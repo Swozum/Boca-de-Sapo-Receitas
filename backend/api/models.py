@@ -33,7 +33,14 @@ class Photos(models.Model):
 class Recipe(models.Model):
     recipe_Name = models.CharField(max_length=100)
     description = models.TextField()
-    difficulty_Level = models.FloatField()
+    DIFFICULTY_CHOICES = (
+        (1, 'Beginner'),
+        (2, 'Easy'),
+        (3, 'Moderate'),
+        (4, 'Hard'),
+        (5, 'Chef')
+    )
+    difficulty_Level = models.IntegerField(choices=DIFFICULTY_CHOICES)
     preparation_Time = models.TimeField()
     creation_Date = models.TimeField(auto_created=True)
     ingredients = models.TextField()
