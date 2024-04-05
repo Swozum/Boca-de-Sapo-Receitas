@@ -43,4 +43,18 @@
   padding: 0px;
 }
 
+.receita-conteudo{
+  margin: 25px;
+}
+
+.receita-info-geral, .receita-info-dificuldade-tempo {
+  display: flex;
+  justify-content: space-between; /* Isso alinha os itens à esquerda e à direita */
+}
+
+.titulo-receita, .data-criacao {
+  margin: 0; /* Remove a margem padrão dos parágrafos */
+}
+
+
 /*  */

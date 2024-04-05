@@ -1,5 +1,5 @@
 import './App.css';
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Link } from 'react-router-dom'
 import Header from './components/Header';
 import Index from './components/Index';
 import Receita from './components/Receita';
@@ -73,8 +73,9 @@ function App() {
     <div className="App">
       <Header />
       <Routes>
-        <Route path='/' element={<Index utilizadores={utilizadores}/>}></Route>
+        <Route path='/' element={<Index />}></Route>
         <Route path='/receita/:index' element={<Receita utilizadores={utilizadores}/>}></Route>
+        <Route path='/verReceita/:index' element={<></>}></Route>
       </Routes>
     </div>
   );
