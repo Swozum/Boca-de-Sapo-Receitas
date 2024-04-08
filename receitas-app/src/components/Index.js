@@ -1,6 +1,23 @@
 import '../App.css'
 import { useState, useEffect } from "react"
 import { Link } from 'react-router-dom';
+import {
+    Box,
+    Card,
+    CardBody,
+    HStack,
+    VStack,
+    Text,
+    Divider,
+    SimpleGrid,
+    Accordion,
+    AccordionItem,
+    AccordionButton,
+    AccordionPanel,
+    AccordionIcon, 
+    Badge,
+    Image
+} from '@chakra-ui/react'
 import Loading from './Loading';
 
 function Index() {
@@ -16,44 +33,85 @@ function Index() {
             } catch (error) {
                 console.log("Erro: ", error)
             };
-
         };
 
         fetchData();
     }, []);
 
+    const colorScheme = {
+        1: "green",
+        2: "green",
+        3: "grey",
+        4: "red",
+        5: "red"
+    }
+
+    const reduceString = (string) => {
+        const maxCharacters = 100;
+        if(string.length > 100) {
+            return string.slice(0, maxCharacters) + '...'
+        }
+        return string;
+    }
+
     //useEffect(() => console.log("Receita: ", receita))
 
     const DisplayReceita = ({ receitas }) => {
         return (
-            <>
-                {receitas.map((receita) => (
-                    <div key={receita.recipe_Id} className='receita-conteudo'>
-                        <div className='receita-info-geral'>
-                            <p className='titulo-receita'>Receita: {receita.recipe_Name}</p>
-                            <p className='data-criacao'>Data criação: {receita.creation_Date}</p>
-                        </div>
-                        <div className='receita-info-dificuldade-tempo'>
-                            <p>Dificuldade: {receita.difficulty_Level}</p>
-                            <p>Tempo de preparo: {receita.preparation_Time}</p>
-                        </div>
-                        <div className='receita-info-descricao'>
-                            <p>Descrição: {receita.description}</p>
-                        </div>
-                        <div className='receita-info-ingredientes'>
-                            <p>Ingredientes: {receita.ingredients}</p>
-                        </div>
-                        <div>
-                            {receita.photos.map((foto, fotoIndex) => (
-                                <img key={fotoIndex} src={foto.local} alt={`Foto ${fotoIndex + 1}`} />
-                            ))}
-                        </div>
-                        <Link to={`/verReceita/${receita.recipe_Id}`}>Ver Receita</Link>
-                        <Link to={`/receita/${receita.recipe_Id}`}>Ver Receita</Link>
-                        <hr />
-                    </div>
-                ))}
-            </>
+            <SimpleGrid columns={[1, null, 3]}>
+                {
+                    receitas.map((receita) => (
+                        <Box m="10px"  key={receita.recipe_Id} >
+                            <Card maxW='xl' maxH="xxl">
+                                <CardBody>
+                                    <VStack align='start'>
+                                        <HStack>
+                                            <Text as="b">{receita.recipe_Name}</Text>
+                                            <Text>Data criação: {receita.creation_Date}</Text>
+                                        </HStack>
+                                        <HStack>
+                                            <p>Dificuldade: <Badge colorScheme={colorScheme[receita.difficulty_Level]}>{receita.difficulty_Level}</Badge></p>
+                                            <p>Tempo de preparo: {receita.preparation_Time}</p>
+                                        </HStack>
+                                        <HStack>
+                                            
+                                            <Image key={receita.photos.id} src="https://www.receitaslidl.pt/var/site/storage/images/4/3/4/2/602434-1-por-PT/Caldo-verde.jpg" />
+                                        </HStack>
+                                        <Accordion allowToggle allowMultiple>
+                                            <AccordionItem>
+                                                <h2>
+                                                    <AccordionButton  as="span" flex='1' textAlign={'left'} _expanded={{bg: "grey", color: 'white'}}>
+                                                        Descrição
+                                                        <AccordionIcon />
+                                                    </AccordionButton>
+                                                </h2>
+                                                <AccordionPanel>
+                                                    {reduceString(receita.description)}
+                                                </AccordionPanel>
+                                            </AccordionItem>
+                                            <AccordionItem>
+                                                <h2>
+                                                    <AccordionButton as="span" flex='1' textAlign={'left'} _expanded={{bg: "grey", color: 'white'}}>
+                                                        Ingredientes
+                                                        <AccordionIcon />
+                                                    </AccordionButton>
+                                                </h2>
+                                                <AccordionPanel>
+                                                    {reduceString(receita.ingredients)}
+                                                </AccordionPanel>
+                                            </AccordionItem>
+                                        </Accordion>
+                                        <Divider />
+                                        <Link to={`/verReceita/${receita.recipe_Id}`}>Ver Receita</Link>
+                                        <Link to={`/receita/${receita.recipe_Id}`}>Ver Receita</Link>
+                                        <hr />
+                                    </VStack>
+                                </CardBody>
+                            </Card>
+                        </Box>
+                    ))
+                }
+            </SimpleGrid>
         )
     }
 

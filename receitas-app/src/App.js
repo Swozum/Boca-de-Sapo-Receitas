@@ -70,11 +70,11 @@ function App() {
   ];
 
   return (
-    <div className="App">
+    <div>
       <Header />
       <Routes>
         <Route path='/' element={<Index />}></Route>
-        <Route path='/receita/:index' element={<Receita utilizadores={utilizadores}/>}></Route>
+        <Route path='/receita/:index' element={<></>}></Route>
         <Route path='/verReceita/:index' element={<></>}></Route>
       </Routes>
     </div>
