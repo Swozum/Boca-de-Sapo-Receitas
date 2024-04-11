@@ -1,6 +1,8 @@
-import '../App.css'
-import { useState, useEffect } from "react"
+import '../styles/Form.css';
+import { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
+import { reduceString } from '../utils';
+import { colorScheme } from '../constants';
 import {
     Box,
     Card,
@@ -14,57 +16,76 @@ import {
     AccordionItem,
     AccordionButton,
     AccordionPanel,
-    AccordionIcon, 
+    AccordionIcon,
     Badge,
-    Image
-} from '@chakra-ui/react'
-import Loading from './Loading';
+    Image,
+    Heading
+} from '@chakra-ui/react';
+import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Loading from '../components/Loading';
 
 function Index() {
-
     const [receita, setReceita] = useState(null);
+    const [users, setUsers] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const resposnse = await fetch(`http://127.0.0.1:8000/recipe/`);
-                const data = await resposnse.json();
+                const response = await fetch(`http://127.0.0.1:8000/recipe/`);
+                const data = await response.json();
                 setReceita(data);
             } catch (error) {
-                console.log("Erro: ", error)
-            };
+                console.log("Erro: ", error);
+            }
         };
 
+        const fetchUsers = async () => {
+            try {
+                const fetchPromises = receita.map(async (recipe) => {
+                    const response = await fetch(`http://127.0.0.1:8000/user_detail/${recipe.creator}`);
+                    const data = await response.json();
+                    return data;
+                });
+                const userData = await Promise.all(fetchPromises);                
+                const updatedUsers = users === null ? [] : users;
+                userData.forEach(user => {
+                    if (!updatedUsers.some(existingUser => existingUser.user_Id === user.user_Id)) {
+                        updatedUsers.push(user);
+                    }
+                });
+                setUsers(updatedUsers);
+            } catch (e) {
+                console.log(e);
+            }
+        };
+        
         fetchData();
-    }, []);
-
-    const colorScheme = {
-        1: "green",
-        2: "green",
-        3: "grey",
-        4: "red",
-        5: "red"
-    }
-
-    const reduceString = (string) => {
-        const maxCharacters = 100;
-        if(string.length > 100) {
-            return string.slice(0, maxCharacters) + '...'
+        if (receita !== null) {
+            fetchUsers();
         }
-        return string;
-    }
-
-    //useEffect(() => console.log("Receita: ", receita))
+        console.log(users)
+    }, []);
 
     const DisplayReceita = ({ receitas }) => {
         return (
             <SimpleGrid columns={[1, null, 3]}>
                 {
                     receitas.map((receita) => (
-                        <Box m="10px"  key={receita.recipe_Id} >
+                        <Box m="10px" key={receita.recipe_Id} >
                             <Card maxW='xl' maxH="xxl">
                                 <CardBody>
                                     <VStack align='start'>
+                                        <HStack>
+                                            <Heading>{users.map((user) => {
+                                                let userInfo = ''
+                                                if(user.user_Id === receita.creator) {
+                                                    userInfo = `${user.username} ${user.last_Name}`
+                                                }
+                                            })}
+                                            <Link to={`/perfil/${receita.creator}`}>Perfil</Link>
+                                            </Heading>
+                                        </HStack>
                                         <HStack>
                                             <Text as="b">{receita.recipe_Name}</Text>
                                             <Text>Data criação: {receita.creation_Date}</Text>
@@ -74,13 +95,12 @@ function Index() {
                                             <p>Tempo de preparo: {receita.preparation_Time}</p>
                                         </HStack>
                                         <HStack>
-                                            
-                                            <Image key={receita.photos.id} src="https://www.receitaslidl.pt/var/site/storage/images/4/3/4/2/602434-1-por-PT/Caldo-verde.jpg" />
+                                            <Image src="https://www.receitaslidl.pt/var/site/storage/images/4/3/4/2/602434-1-por-PT/Caldo-verde.jpg" />
                                         </HStack>
-                                        <Accordion allowToggle allowMultiple>
+                                        <Accordion allowMultiple>
                                             <AccordionItem>
                                                 <h2>
-                                                    <AccordionButton  as="span" flex='1' textAlign={'left'} _expanded={{bg: "grey", color: 'white'}}>
+                                                    <AccordionButton as="span" flex='1' textAlign={'left'} _expanded={{ bg: "grey", color: 'white' }}>
                                                         Descrição
                                                         <AccordionIcon />
                                                     </AccordionButton>
@@ -91,7 +111,7 @@ function Index() {
                                             </AccordionItem>
                                             <AccordionItem>
                                                 <h2>
-                                                    <AccordionButton as="span" flex='1' textAlign={'left'} _expanded={{bg: "grey", color: 'white'}}>
+                                                    <AccordionButton as="span" flex='1' textAlign={'left'} _expanded={{ bg: "grey", color: 'white' }}>
                                                         Ingredientes
                                                         <AccordionIcon />
                                                     </AccordionButton>
@@ -102,9 +122,7 @@ function Index() {
                                             </AccordionItem>
                                         </Accordion>
                                         <Divider />
-                                        <Link to={`/verReceita/${receita.recipe_Id}`}>Ver Receita</Link>
-                                        <Link to={`/receita/${receita.recipe_Id}`}>Ver Receita</Link>
-                                        <hr />
+                                        <Link to={`/receita/${receita.recipe_Id}`}>Ver Receita <FontAwesomeIcon icon={faArrowRight} /></Link>
                                     </VStack>
                                 </CardBody>
                             </Card>
@@ -113,11 +131,11 @@ function Index() {
                 }
             </SimpleGrid>
         )
-    }
+    };
 
     return (
         <div className="index">
-            {receita !== null ? <DisplayReceita receitas={receita} /> : <Loading />}
+            {receita !== null && users !== null ? <DisplayReceita receitas={receita} /> : <Loading />}
         </div>
     )
 }

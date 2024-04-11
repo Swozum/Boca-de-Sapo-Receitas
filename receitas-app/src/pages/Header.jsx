@@ -57,6 +57,6 @@ function Header() {
             </HStack>
         </Box>
     )
-}
+}   
 
 export default Header;
