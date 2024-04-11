@@ -1,4 +1,6 @@
 django~=5.0.3
 django_restframework
-pyrebase
 djangorestframework~=3.15.1
+django-cors-headers
+psycopg2
+Pillow
