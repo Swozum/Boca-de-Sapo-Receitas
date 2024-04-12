@@ -1,6 +1,6 @@
 import '../styles/Form.css';
 import { useState, useEffect } from "react";
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import { reduceString } from '../utils';
 import { colorScheme } from '../constants';
 import {
@@ -28,26 +28,37 @@ import Loading from '../components/Loading';
 function Index() {
     const [receita, setReceita] = useState(null);
     const [users, setUsers] = useState([]);
-
+    const [loading, setLoading] = useState(true);
+    
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch(`http://127.0.0.1:8000/recipe/`);
-                const data = await response.json();
-                setReceita(data);
+                // Verifica se há dados no localStorage
+                const storedData = JSON.parse(localStorage.getItem('indexData'));
+                if (storedData) {
+                    setReceita(storedData.receita);
+                    setUsers(storedData.users);
+                    setLoading(false);
+                } else {
+                    const response = await fetch(`http://127.0.0.1:8000/recipe/`);
+                    const data = await response.json();
+                    setReceita(data);
+                    // Agora que receita está disponível, podemos buscar os usuários
+                    await fetchUsers(data);
+                }
             } catch (error) {
                 console.log("Erro: ", error);
             }
         };
 
-        const fetchUsers = async () => {
+        const fetchUsers = async (recipes) => {
             try {
-                const fetchPromises = receita.map(async (recipe) => {
+                const fetchPromises = recipes.map(async (recipe) => {
                     const response = await fetch(`http://127.0.0.1:8000/user_detail/${recipe.creator}`);
                     const data = await response.json();
                     return data;
                 });
-                const userData = await Promise.all(fetchPromises);                
+                const userData = await Promise.all(fetchPromises);
                 const updatedUsers = users === null ? [] : users;
                 userData.forEach(user => {
                     if (!updatedUsers.some(existingUser => existingUser.user_Id === user.user_Id)) {
@@ -55,16 +66,16 @@ function Index() {
                     }
                 });
                 setUsers(updatedUsers);
+                setLoading(false); // Agora ambos os dados estão disponíveis
+                // Armazena os dados no localStorage
+                localStorage.setItem('indexData', JSON.stringify({ receita, users: updatedUsers }));
             } catch (e) {
                 console.log(e);
             }
         };
-        
+
         fetchData();
-        if (receita !== null) {
-            fetchUsers();
-        }
-        console.log(users)
+
     }, []);
 
     const DisplayReceita = ({ receitas }) => {
@@ -77,14 +88,15 @@ function Index() {
                                 <CardBody>
                                     <VStack align='start'>
                                         <HStack>
-                                            <Heading>{users.map((user) => {
-                                                let userInfo = ''
-                                                if(user.user_Id === receita.creator) {
-                                                    userInfo = `${user.username} ${user.last_Name}`
-                                                }
-                                            })}
-                                            <Link to={`/perfil/${receita.creator}`}>Perfil</Link>
-                                            </Heading>
+                                            <Link to={`/perfil/${receita.creator}`}>
+                                                <Heading>{users.map((user) => {
+                                                    if (user.user_Id === receita.creator) {
+                                                        return <p key={user.user_Id}>{user.username} {user.last_Name}</p>
+                                                    }
+                                                    return null;
+                                                })}
+                                                </Heading>
+                                            </Link>
                                         </HStack>
                                         <HStack>
                                             <Text as="b">{receita.recipe_Name}</Text>
@@ -135,7 +147,7 @@ function Index() {
 
     return (
         <div className="index">
-            {receita !== null && users !== null ? <DisplayReceita receitas={receita} /> : <Loading />}
+            {loading ? <Loading /> : (receita !== null && users !== null ? <DisplayReceita receitas={receita} /> : <Loading />)}
         </div>
     )
 }

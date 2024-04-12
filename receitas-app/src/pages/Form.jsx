@@ -30,7 +30,6 @@ export default function Form({route, method}) {
         } finally {
             setLoading(false)
         }
-
     }
     return (
         <form onSubmit={handleSubmit} className="form-container">
